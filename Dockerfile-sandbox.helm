@@ -24,8 +24,7 @@ WORKDIR /usr/share/nginx/html
 ARG sdkVersion
 ARG port=80
 ARG nginxPath=/usr/share/nginx/html/web/$sdkVersion
-COPY --from=builder /app/dist/sandbox $nginxPath
-WORKDIR $nginxPath/v1
+COPY --from=builder /app/dist/sandbox /usr/share/nginx/html
 
 # Add the embedded entrypoint script
 COPY docker_helm_utils/change_urls.sh /docker-entrypoint.d/change_urls.sh
