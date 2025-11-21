@@ -14,7 +14,7 @@ fi
 if [ -f "app.js" ]; then
   NEW_HASH=$(openssl dgst -sha384 -binary app.js | openssl base64 -A)
   # 只更新包含 app.js 的行中的 integrity
-  sed -i -e "/app\.js/s/integrity=\"sha384-[^\"]*\"/integrity=\"sha384-${NEW_HASH}\"/g" *.html
+  sed -i -e "s|\(<script[^>]*app\.js[^>]*\)integrity=\"sha384-[a-zA-Z0-9+/=]*\"|\1integrity=\"sha384-${NEW_HASH}\"|g" *.html
 fi
 
 echo "Build modifications completed."
