@@ -10,9 +10,20 @@ if [ -n "$envLogsUrl" ]; then
   sed -i -e "s|https://sandbox.hyperswitch.io/logs/sdk|${envLogsUrl}|g" app.js HyperLoader.js
 fi
 
+# 重新计算并更新 app.js 的 integrity 值
 if [ -f "app.js" ]; then
   NEW_HASH=$(openssl dgst -sha384 -binary app.js | openssl base64 -A)
-  sed -i -e "s|integrity=\"sha384-[^\"]*\"|integrity=\"sha384-${NEW_HASH}\"|g" *.html
+  # 只更新包含 app.js 的行中的 integrity
+  sed -i -e "/app\.js/s/integrity=\"sha384-[^\"]*\"/integrity=\"sha384-${NEW_HASH}\"/g" *.html
 fi
+
+# 重新计算并更新 app.css 的 integrity 值
+if [ -f "app.css" ]; then
+  NEW_HASH=$(openssl dgst -sha384 -binary app.css | openssl base64 -A)
+  # 只更新包含 app.css 的行中的 integrity
+  sed -i -e "/app\.css/s/integrity=\"sha384-[^\"]*\"/integrity=\"sha384-${NEW_HASH}\"/g" *.html
+fi
+
+
 echo "Build modifications completed."
 exec "$@"
