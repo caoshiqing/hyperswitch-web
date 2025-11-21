@@ -23,13 +23,13 @@ FROM nginx:alpine
 WORKDIR /usr/share/nginx/html
 ARG sdkVersion
 ARG port=80
-ARG nginxPath=/usr/share/nginx/html/web
+ARG nginxPath=/usr/share/nginx/html/web/$sdkVersion
 COPY --from=builder /app/dist/sandbox $nginxPath
 WORKDIR $nginxPath/v1
 
 # Add the embedded entrypoint script
 COPY docker_helm_utils/change_urls.sh /docker-entrypoint.d/change_urls.sh
 RUN chmod +x /docker-entrypoint.d/change_urls.sh
-EXPOSE 80 
+
 # Use the embedded entrypoint script and run Nginx
 CMD ["nginx", "-g", "daemon off;"]
