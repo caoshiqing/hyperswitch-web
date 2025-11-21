@@ -8,6 +8,8 @@ ARG sdkVersion=main
 # Set the working directory to the cloned repository
 WORKDIR /app
 
+COPY . .
+
 ENV ENV_BACKEND_URL=https://beta.hyperswitch.io/api
 # Install dependencies and build the project
 RUN npm_config_ignore_scripts=true npm install
