@@ -19,6 +19,9 @@ RUN npm run build:sandbox
 # Stage 2: Serve the built assets
 FROM nginx:alpine
 
+# Install openssl for calculating SHA-384 hash
+RUN apk add --no-cache openssl
+
 # Set working directory and copy the built assets from the builder stage
 WORKDIR /usr/share/nginx/html
 ARG sdkVersion
