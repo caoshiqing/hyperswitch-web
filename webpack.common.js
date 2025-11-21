@@ -49,6 +49,7 @@ const authorizedScriptSources = [
   "https://js.verygoodvault.com/vgs-collect/2.27.2/vgs-collect.js",
   "https://vgs-collect-keeper.apps.verygood.systems/vgs",
   "blob:",
+  "https://192.168.30.127:8080",
   // Add other trusted sources here
 ];
 
