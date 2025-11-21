@@ -17,13 +17,5 @@ if [ -f "app.js" ]; then
   sed -i -e "/app\.js/s/integrity=\"sha384-[^\"]*\"/integrity=\"sha384-${NEW_HASH}\"/g" *.html
 fi
 
-# 重新计算并更新 app.css 的 integrity 值
-if [ -f "app.css" ]; then
-  NEW_HASH=$(openssl dgst -sha384 -binary app.css | openssl base64 -A)
-  # 只更新包含 app.css 的行中的 integrity
-  sed -i -e "/app\.css/s/integrity=\"sha384-[^\"]*\"/integrity=\"sha384-${NEW_HASH}\"/g" *.html
-fi
-
-
 echo "Build modifications completed."
 exec "$@"
