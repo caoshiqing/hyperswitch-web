@@ -11,6 +11,8 @@ WORKDIR /app
 COPY . .
 
 ENV ENV_BACKEND_URL=https://beta.hyperswitch.io/api
+ENV ENV_LOGGING_URL=https://sandbox.hyperswitch.io/logs/sdk
+ENV ENABLE_LOGGING=true
 # Install dependencies and build the project
 RUN npm_config_ignore_scripts=true npm install
 RUN git submodule update --init --recursive
