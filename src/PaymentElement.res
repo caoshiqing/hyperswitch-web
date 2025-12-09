@@ -1,6 +1,8 @@
 open PaymentType
 open Utils
 open PaymentUtils
+open VaultHelpers
+open RecoilAtomsV2
 
 let cardsToRender = (width: int) => {
   let minWidth = 130
@@ -27,6 +29,8 @@ let make = (~cardProps, ~expiryProps, ~cvcProps, ~paymentType: CardThemeType.mod
   let loggerState = Recoil.useRecoilValueFromAtom(RecoilAtoms.loggerAtom)
   let isShowOrPayUsing = Recoil.useRecoilValueFromAtom(RecoilAtoms.isShowOrPayUsing)
   let {publishableKey} = Recoil.useRecoilValueFromAtom(RecoilAtoms.keys)
+  let sessionToken = Recoil.useRecoilValueFromAtom(RecoilAtoms.sessions)
+  let (vaultMode, setVaultMode) = Recoil.useRecoilState(vaultMode)
 
   let clickToPayConfig = Recoil.useRecoilValueFromAtom(RecoilAtoms.clickToPayConfig)
   let (selectedOption, setSelectedOption) = Recoil.useRecoilState(RecoilAtoms.selectedOptionAtom)
@@ -68,6 +72,16 @@ let make = (~cardProps, ~expiryProps, ~cvcProps, ~paymentType: CardThemeType.mod
     ~savedMethods,
     ~loadSavedCards,
   )
+
+  React.useEffect(() => {
+    let vaultName = VaultHelpers.getVaultName(sessionToken)
+    setVaultMode(_ => vaultName->VaultHelpers.getVaultModeFromName)
+    switch sessionToken {
+    | Loaded(val) => setSessions(_ => val)
+    | _ => ()
+    }
+    None
+  }, [sessionToken])
 
   React.useEffect(() => {
     switch (displaySavedPaymentMethods, customerPaymentMethods) {
@@ -309,7 +323,12 @@ let make = (~cardProps, ~expiryProps, ~cvcProps, ~paymentType: CardThemeType.mod
   let checkoutEle = {
     <ErrorBoundary key={selectedOption} componentName="PaymentElement" publishableKey>
       {switch selectedOption->PaymentModeType.paymentMode {
-      | Card => <CardPayment cardProps expiryProps cvcProps />
+      | Card =>
+        switch vaultMode {
+        | VeryGoodSecurity => <VGSVault />
+        | Hyperswitch => <CardIframeContainer />
+        | None => <CardPayment cardProps expiryProps cvcProps />
+        }
       | ACHTransfer =>
         <ReusableReactSuspense loaderComponent={loader()} componentName="ACHBankTransferLazy">
           <ACHBankTransferLazy />
