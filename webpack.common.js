@@ -22,6 +22,8 @@ const localhostSources = [
   "http://127.0.0.1:5252",
   "https://192.168.30.127:8080",
   "https://192.168.30.127:3104",
+  "https://222.128.9.162:8081",
+  "https://222.128.9.162:3104"
 ];
 
 // List of authorized external script sources (for Content Security Policy)
