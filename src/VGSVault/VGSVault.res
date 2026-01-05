@@ -89,7 +89,10 @@ let make = (~isBancontact=false) => {
         let onSuccess = (_, data) => {
           let (cardNumber, month, year, cvcNumber) = getTokenizedData(data)
 
-          let cardBody = PaymentManagementBody.vgsCardBody(~cardNumber, ~month, ~year, ~cvcNumber)
+          let cardBody = switch GlobalVars.sdkVersion {
+          | V1 => PaymentManagementBody.vgsCardBodyV1(~cardNumber, ~month, ~year, ~cvcNumber)
+          | V2 => PaymentManagementBody.vgsCardBody(~cardNumber, ~month, ~year, ~cvcNumber)
+          }
           if areRequiredFieldsValid && !areRequiredFieldsEmpty {
             intent(
               ~bodyArr={cardBody->mergeAndFlattenToTuples(requiredFieldsBody)},

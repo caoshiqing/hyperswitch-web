@@ -66,6 +66,24 @@ let vgsCardBody = (~cardNumber, ~month, ~year, ~cvcNumber) => {
   ]
 }
 
+let vgsCardBodyV1 = (~cardNumber, ~month, ~year, ~cvcNumber) => {
+  let cardBody = [
+    ("card_number", cardNumber->JSON.Encode.string),
+    ("card_exp_month", month->JSON.Encode.string),
+    ("card_exp_year", year->JSON.Encode.string),
+    ("card_cvc", cvcNumber->JSON.Encode.string),
+    ("card_issuer", ""->JSON.Encode.string),
+  ]
+
+  [
+    ("payment_method", "card"->JSON.Encode.string),
+    (
+      "payment_method_data",
+      [("vault_data_card", cardBody->Utils.getJsonFromArrayOfJson)]->Utils.getJsonFromArrayOfJson,
+    ),
+  ]
+}
+
 let hyperswitchVaultBody = token => {
   let paymentMethodData =
     [("card_token", Dict.make()->JSON.Encode.object)]->Utils.getJsonFromArrayOfJson
