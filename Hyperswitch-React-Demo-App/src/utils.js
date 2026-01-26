@@ -98,6 +98,7 @@ export const handlePaymentStatus = (status, setMessage, setIsSuccess) => {
 
 export const paymentElementOptions = {
   displayDefaultSavedPaymentIcon: false,
+  displaySavedPaymentMethods: false,
   wallets: {
     walletReturnUrl: window.location.origin,
     applePay: "auto",

@@ -2,6 +2,7 @@ open Utils
 open VGSTypes
 open VGSHelpers
 open VGSConstants
+open UtilityHooks
 
 @react.component
 let make = (~isBancontact=false) => {
@@ -11,9 +12,31 @@ let make = (~isBancontact=false) => {
   let sessionToken = Recoil.useRecoilValueFromAtom(RecoilAtoms.sessions)
   let areRequiredFieldsValid = Recoil.useRecoilValueFromAtom(RecoilAtoms.areRequiredFieldsValid)
   let areRequiredFieldsEmpty = Recoil.useRecoilValueFromAtom(RecoilAtoms.areRequiredFieldsEmpty)
+  let paymentMethodListValue = Recoil.useRecoilValueFromAtom(PaymentUtils.paymentMethodListValue)
 
   let {themeObj, localeString, config} = Recoil.useRecoilValueFromAtom(RecoilAtoms.configAtom)
+  let {
+    displaySavedPaymentMethodsCheckbox,
+    savedPaymentMethodsCheckboxCheckedByDefault,
+  } = Recoil.useRecoilValueFromAtom(RecoilAtoms.optionAtom)
   let {innerLayout} = config.appearance
+
+  let (isSaveCardsChecked, setIsSaveCardsChecked) = React.useState(_ =>
+    savedPaymentMethodsCheckboxCheckedByDefault
+  )
+  let isGuestCustomer = useIsGuestCustomer()
+  let isCustomerAcceptanceRequired = useIsCustomerAcceptanceRequired(
+    ~displaySavedPaymentMethodsCheckbox,
+    ~isSaveCardsChecked,
+    ~isGuestCustomer,
+  )
+
+  let conditionsForShowingSaveCardCheckbox =
+    paymentMethodListValue.mandate_payment->Option.isNone &&
+    !isGuestCustomer &&
+    paymentMethodListValue.payment_type !== SETUP_MANDATE &&
+    displaySavedPaymentMethodsCheckbox &&
+    !isBancontact
 
   let (isCardFocused, setIsCardFocused) = React.useState(() => None)
   let (isCVCFocused, setIsCVCFocused) = React.useState(() => None)
@@ -89,10 +112,18 @@ let make = (~isBancontact=false) => {
         let onSuccess = (_, data) => {
           let (cardNumber, month, year, cvcNumber) = getTokenizedData(data)
 
-          let cardBody = switch GlobalVars.sdkVersion {
+          let defaultCardBody = switch GlobalVars.sdkVersion {
           | V1 => PaymentManagementBody.vgsCardBodyV1(~cardNumber, ~month, ~year, ~cvcNumber)
           | V2 => PaymentManagementBody.vgsCardBody(~cardNumber, ~month, ~year, ~cvcNumber)
           }
+
+          let onSessionBody = [("customer_acceptance", PaymentBody.customerAcceptanceBody)]
+          let cardBody = if isCustomerAcceptanceRequired {
+            defaultCardBody->Array.concat(onSessionBody)
+          } else {
+            defaultCardBody
+          }
+
           if areRequiredFieldsValid && !areRequiredFieldsEmpty {
             intent(
               ~bodyArr={cardBody->mergeAndFlattenToTuples(requiredFieldsBody)},
@@ -125,7 +156,7 @@ let make = (~isBancontact=false) => {
       | None => Console.error("VGS Vault not initialized for submission")
       }
     }
-  }, (form, requiredFieldsBody, areRequiredFieldsValid, areRequiredFieldsEmpty))
+  }, (form, requiredFieldsBody, areRequiredFieldsValid, areRequiredFieldsEmpty, isCustomerAcceptanceRequired))
 
   useSubmitPaymentData(submitCallback)
 
@@ -172,6 +203,11 @@ let make = (~isBancontact=false) => {
         </div>
         <ErrorComponent cardError=vgsCardError expiryError=vgsExpiryError cvcError=vgsCVCError />
         <DynamicFields paymentMethod="card" paymentMethodType="credit" setRequiredFieldsBody />
+        <RenderIf condition={conditionsForShowingSaveCardCheckbox}>
+          <div className="flex items-center justify-start">
+            <SaveDetailsCheckbox isChecked=isSaveCardsChecked setIsChecked=setIsSaveCardsChecked />
+          </div>
+        </RenderIf>
       </div>
     </div>
   </div>

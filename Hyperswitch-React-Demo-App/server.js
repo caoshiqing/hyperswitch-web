@@ -47,19 +47,20 @@ app.get("/urls", limiter, (req, res) => {
 
 const paymentData = {
   currency: "USD",
-  amount: 2999,
+  amount: 0,
   order_details: [
     {
       product_name: "Apple iPhone 15",
       quantity: 1,
-      amount: 2999,
+      amount: 0,
     },
   ],
   confirm: false,
   capture_method: "automatic",
   authentication_type: "three_ds",
-  customer_id: "hyperswitch_sdk_demo_id",
-  email: "hyperswitch_sdk_demo_id@gmail.com",
+  customer_id: "zero_auth_test_customer",
+  email: "zero_auth_test_customer@gmail.com",
+  setup_future_usage: "off_session",
   request_external_three_ds_authentication: false,
   description: "Hello this is description",
   shipping: {
