@@ -156,7 +156,13 @@ let make = (~isBancontact=false) => {
       | None => Console.error("VGS Vault not initialized for submission")
       }
     }
-  }, (form, requiredFieldsBody, areRequiredFieldsValid, areRequiredFieldsEmpty, isCustomerAcceptanceRequired))
+  }, (
+    form,
+    requiredFieldsBody,
+    areRequiredFieldsValid,
+    areRequiredFieldsEmpty,
+    isCustomerAcceptanceRequired,
+  ))
 
   useSubmitPaymentData(submitCallback)
 
